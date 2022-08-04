@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/domain/repository"
 
@@ -37,3 +38,24 @@ func (r *account) FindByUsername(ctx context.Context, username string) (*object.
 
 	return entity, nil
 }
+
+// ユーザー作成
+func (r *account) CreateAccount(_ context.Context, username string, passwordHash string) (int64, error) {	
+	ins, err := r.db.Preparex("insert INTO account (username, password_hash) VALUES (?, ?)")	
+	if err != nil {		
+		return 0, err	
+	}	
+
+	var id int64	
+	result, err := ins.Exec(username, passwordHash)	
+	if err != nil {
+		log.Fatalf("Exec-miss")
+	}
+	id, err = result.LastInsertId()	
+	if err != nil {
+		log.Fatalf(("LastInsertId-miss"))
+	}	
+	return id, nil
+}
+
+
